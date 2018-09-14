@@ -1,0 +1,33 @@
+--低保、支出型贫困、特殊救济、重残无业、特困人员、粮油帮困
+select * from (
+  select rownum rowno,family_id, cetf_id, person_name,help_fund from jz_provide_info a
+  where a.organ_id = '0026102000' and a.help_type = '00010001' and 
+  a.provide_month>= to_date('20180401','yyyymmdd') and a.provide_month<= to_date('20180430','yyyymmdd')
+  and not exists (
+  select help_fund from jz_provide_info b
+  where b.organ_id = '0026102000' and b.help_type = '00010001' and 
+  b.family_id=a.family_id and b.cetf_id=a.cetf_id and b.person_name=a.person_name
+  and b.provide_month>=to_date('20180501','yyyymmdd') and b.provide_month<=to_date('20180530','yyyymmdd')  
+  ) and rownum<=5
+) t where t.rowno>1
+
+
+--查询数目
+select count(1) num from (
+  select family_id, cetf_id, person_name from jz_provide_info a
+  where a.organ_id = '0026102000' and a.help_type = '00010001'
+  and a.provide_month>= to_date('20180401','yyyymmdd') and a.provide_month<= to_date('20180430','yyyymmdd')
+  and not exists (
+    select 1 from jz_provide_info b
+    where b.organ_id = '0026102000' and b.help_type = '00010001'
+    and b.family_id=a.family_id and b.cetf_id=a.cetf_id and b.person_name=a.person_name
+    and b.provide_month>=to_date('20180501','yyyymmdd') and b.provide_month<=to_date('20180530','yyyymmdd') 
+  )
+)
+
+--根据provide_id查询金额
+select help_fund from jz_provide_info where provide_id = '261022018017299112'
+--family_id: 090102018000466128
+--根据family_id 查询本月与上月的救助金额
+select help_fund from jz_provide_info where provide_month>=to_date('20180501','yyyymmdd') and 
+provide_month<=to_date('20180530','yyyymmdd') and organ_id = '0026102000' and family_id = '090102018000466128' and help_type = '00010001'
